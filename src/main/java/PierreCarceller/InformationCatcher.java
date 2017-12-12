@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import java.util.*;
 
-public class InformationCatcher extends Observable {
+class InformationCatcher extends Observable {
     private final String SNP_MARKER_NAME = "SNP marker name";
     private final String CHROMOSOME = "chromosome";
     private final String SNP_POSITION ="snp position";
@@ -19,7 +19,7 @@ public class InformationCatcher extends Observable {
     private Workbook workbook;// = new XSSFWorkbook(excelFile);
     private Observer obs;
 
-    public InformationCatcher (String filePath, Observer obs) {
+    InformationCatcher(String filePath, Observer obs) {
         this.filePath=filePath;
         this.obs=obs;
         try {
@@ -37,7 +37,7 @@ public class InformationCatcher extends Observable {
 
     }
 
-    public int getColumnIdByName(Sheet currentSheet, String columnName) {
+    private int getColumnIdByName(Sheet currentSheet, String columnName) {
         int count=0;
         Row firstRow = currentSheet.getRow(0);
         Iterator<Cell> cellIterator = firstRow.cellIterator();
@@ -54,7 +54,7 @@ public class InformationCatcher extends Observable {
         return -1;
     }
 
-    public TreeSet<MarkerPosition> getMarkersPosition(String sheetName){
+    TreeSet<MarkerPosition> getMarkersPosition(String sheetName){
         TreeSet<MarkerPosition> result = new TreeSet<MarkerPosition>();
         Sheet currentSheet = this.workbook.getSheet(sheetName);
         if (currentSheet==null){
@@ -84,10 +84,11 @@ public class InformationCatcher extends Observable {
             }
             currentRow=rowIterator.next();
         }
+        result.last().printMarkerPosition();
         return result;
     }
 
-    public ArrayList<String> getSamplesNames(String sheetName){
+    ArrayList<String> getSamplesNames(String sheetName){
         ArrayList<String> result = new ArrayList<String>();
         Sheet currentSheet = this.workbook.getSheet(sheetName);
         Row firstRow = currentSheet.getRow(0);
@@ -100,33 +101,37 @@ public class InformationCatcher extends Observable {
         return result;
     }
 
-    public HashMap getHmap(String sheetName){
+    HashMap getHmap(String sheetName){
         HashMap<String,Integer> hashMap = new HashMap<String,Integer>();
         Sheet currentSheet = this.workbook.getSheet(sheetName);
         if (currentSheet==null){
             this.obs.update(this, "Sheet "+sheetName+" not found");
-        }
-        Iterator<Row> rowIterator = currentSheet.rowIterator();
-        Row currentRow = rowIterator.next();
-        while (rowIterator.hasNext()){
-            currentRow = rowIterator.next();
-            hashMap.put(currentRow.getCell(0).getStringCellValue(),currentRow.getRowNum()+1);
+        }else{
+            Iterator<Row> rowIterator = currentSheet.rowIterator();
+            Row currentRow = rowIterator.next();
+            while (rowIterator.hasNext()){
+                currentRow = rowIterator.next();
+                hashMap.put(currentRow.getCell(0).getStringCellValue(),currentRow.getRowNum()+1);
+            }
         }
         return hashMap;
     }
 
-    public ArrayList getRowWithHmap(HashMap hashMap, String key, String sheetName){
+    ArrayList getRowWithHmap(HashMap hashMap, String key, String sheetName){
         ArrayList<Comparable> result = new ArrayList<Comparable>();
         Integer requestedRowNumber = (Integer) hashMap.get(key);
         Sheet currentSheet = this.workbook.getSheet(sheetName);
         if (currentSheet==null){
             this.obs.update(this, "Sheet "+sheetName+" not found");
+        }else{
+            System.out.println(requestedRowNumber);
+            Row requestedRow = currentSheet.getRow(requestedRowNumber-1);
+            return this.fillComparableArray(requestedRow);
         }
-        Row requestedRow = currentSheet.getRow(requestedRowNumber);
-        return this.fillComparableArray(requestedRow);
+        return null;
     }
 
-    public ArrayList<Comparable> fillComparableArray(Row currentRow){
+    private ArrayList<Comparable> fillComparableArray(Row currentRow){
         ArrayList<Comparable> result = new ArrayList<Comparable>();
         Iterator<Cell> cellsOfCurrentRow = currentRow.cellIterator();
         Cell currentCell = cellsOfCurrentRow.next();

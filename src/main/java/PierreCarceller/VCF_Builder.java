@@ -4,16 +4,16 @@ import htsjdk.variant.variantcontext.*;
 
 import java.util.*;
 
-public class VCF_Builder {
+class VCF_Builder {
 
-   public Allele refAllele;
-   public String refValue;
+   private Allele refAllele;
+   private String refValue;
 
-   public VCF_Builder(){
+   VCF_Builder(){
 
    }
 
-   public ArrayList makeAlleles (ArrayList<Comparable> currentRow, ArrayList<String> samplesNames){
+   ArrayList makeAlleles(ArrayList<Comparable> currentRow, ArrayList<String> samplesNames){
        ArrayList<ArrayList> allAlleles = new ArrayList<ArrayList>();
        for(int i=1;i<samplesNames.size();i++) {
            String temp = currentRow.get(i).toString();
@@ -50,7 +50,7 @@ public class VCF_Builder {
        return allAlleles;
    }
 
-   public ArrayList makeGenotypes (ArrayList<ArrayList> allAlleles, ArrayList<String> samplesNames){
+   ArrayList makeGenotypes(ArrayList<ArrayList> allAlleles, ArrayList<String> samplesNames){
        ArrayList<Genotype> genotypes = new ArrayList<Genotype>();
        for (int i=1; i<samplesNames.size();i++){
            Genotype genotype = GenotypeBuilder.create(samplesNames.get(i),allAlleles.get(i-1));
@@ -59,7 +59,7 @@ public class VCF_Builder {
        return genotypes;
    }
 
-   public VariantContext makeVarianContexte(ArrayList<Genotype> genotypes, MarkerPosition markerPosition, ArrayList<Allele> alleleArrayList){
+   VariantContext makeVarianContexte(ArrayList<Genotype> genotypes, MarkerPosition markerPosition, ArrayList<Allele> alleleArrayList){
        VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
        variantContextBuilder.genotypes(genotypes);
        variantContextBuilder.start(markerPosition.getMarkerPosition()); //position
@@ -71,7 +71,7 @@ public class VCF_Builder {
        return variantContext;
    }
 
-   public ArrayList<Allele> getAllele(ArrayList<ArrayList> arrayListArrayList){
+   ArrayList<Allele> getAllele(ArrayList<ArrayList> arrayListArrayList){
        ArrayList<Allele> result = new ArrayList<Allele>();
        ArrayList<String> alleleValue = new ArrayList<String>();
        for (ArrayList<Allele> array: arrayListArrayList){
