@@ -136,6 +136,7 @@ class InformationCatcher extends Observable {
         Iterator<Cell> cellsOfCurrentRow = currentRow.cellIterator();
         Cell currentCell = cellsOfCurrentRow.next();
         while (cellsOfCurrentRow.hasNext()){
+            currentCell = cellsOfCurrentRow.next();
             if (currentCell.getCellTypeEnum() == CellType.STRING) {
                 result.add(currentCell.getStringCellValue());
             }else if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
@@ -143,7 +144,7 @@ class InformationCatcher extends Observable {
                 Integer temp2 = temp.intValue();
                 result.add(temp2);
             }
-            currentCell = cellsOfCurrentRow.next();
+
         }
         return result;
     }

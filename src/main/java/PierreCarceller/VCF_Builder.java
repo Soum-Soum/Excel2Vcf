@@ -15,7 +15,7 @@ class VCF_Builder {
 
    ArrayList makeAlleles(ArrayList<Comparable> currentRow, ArrayList<String> samplesNames){
        ArrayList<ArrayList> allAlleles = new ArrayList<ArrayList>();
-       for(int i=1;i<samplesNames.size();i++) {
+       for(int i=0;i<samplesNames.size();i++) {
            String temp = currentRow.get(i).toString();
            ArrayList<Allele > alleles = new ArrayList<Allele>();
            Allele newAllele;
@@ -52,8 +52,10 @@ class VCF_Builder {
 
    ArrayList makeGenotypes(ArrayList<ArrayList> allAlleles, ArrayList<String> samplesNames){
        ArrayList<Genotype> genotypes = new ArrayList<Genotype>();
-       for (int i=1; i<samplesNames.size();i++){
-           Genotype genotype = GenotypeBuilder.create(samplesNames.get(i),allAlleles.get(i-1));
+       for (int i=0; i<samplesNames.size();i++){
+           //ArrayList<Allele> temp = allAlleles.get(i);
+           Collections.sort(allAlleles.get(i));
+           Genotype genotype = GenotypeBuilder.create(samplesNames.get(i),allAlleles.get(i));
            genotypes.add(genotype);
        }
        return genotypes;

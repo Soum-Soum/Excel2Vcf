@@ -1,4 +1,3 @@
 Manifest-Version: 1.0
-Class-Path: /home/u017-h433/Bureau/Excel2Vcf/src/main/java
 Main-Class: PierreCarceller.View
 
