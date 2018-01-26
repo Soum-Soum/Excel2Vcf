@@ -7,7 +7,6 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.*;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,17 +16,27 @@ import java.util.*;
 
 // /home/u017-h433/Bureau/T_cacao_diversity.xls
 
-public class Main {
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_positions_sorted.xls
 
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_v2_top_by_marker.xlsx
+
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_v2_top_by_marker.xls
+
+
+public class Main extends Observable{
+
+    Observer obs;
     final static String DATA_SHEET_NAME_1 = "marker";
     final static String DATA_SHEET_NAME_2 = "data_matrix";
-    public Main(){
 
+    public Main(Observer obs){
+        this.obs=obs;
     }
 
-    public void launchConvertion(String pathFileMarker, String pathFileMatrix, String finalPath, View obs) throws IOException {
+    void launchConvertion(String pathFileMarker, String pathFileMatrix, String finalPath, View obs) throws IOException {
         System.out.println(pathFileMarker);
         System.out.println(pathFileMatrix);
+        this.obs.update(this, "true");
         InformationCatcher informationCatcherMarkersFile = new InformationCatcher(pathFileMarker, obs);
         TreeSet<MarkerPosition> treeOfMarkersPositions = informationCatcherMarkersFile.getMarkersPosition(DATA_SHEET_NAME_1);
         InformationCatcher informationCatcherMatrixFile = new InformationCatcher(pathFileMatrix,obs);
@@ -52,13 +61,18 @@ public class Main {
         for (MarkerPosition markerPosition :treeOfMarkersPositions){
             markerPosition.printMarkerPosition();
             ArrayList<Comparable> currentRow = informationCatcherMatrixFile.getRowWithHmap(stringIntegerHashMap,markerPosition.getMarkerName(),"data_matrix");
-            ArrayList<ArrayList> alleleArrayList = vcfBuilder.makeAlleles(currentRow,sampelsNames);
-            ArrayList<Genotype> genotypeArrayList = vcfBuilder.makeGenotypes(alleleArrayList, sampelsNames);
-            ArrayList<Allele> alleles = vcfBuilder.getAllele(alleleArrayList);
-            VariantContext variantContext = vcfBuilder.makeVarianContexte(genotypeArrayList,markerPosition, alleles );
-            writer.add(variantContext);
+            if(currentRow!=null){
+                ArrayList<ArrayList> alleleArrayList = vcfBuilder.makeAlleles(currentRow,sampelsNames);
+                ArrayList<Genotype> genotypeArrayList = vcfBuilder.makeGenotypes(alleleArrayList, sampelsNames);
+                ArrayList<Allele> alleles = vcfBuilder.getAllele(alleleArrayList);
+                VariantContext variantContext = vcfBuilder.makeVarianContexte(genotypeArrayList,markerPosition, alleles );
+                if(variantContext != null){
+                    writer.add(variantContext);
+                }
+            }
         }
+        writer.close();
         System.out.println("Done");
+        this.obs.update(this, "false");
     }
-
 }

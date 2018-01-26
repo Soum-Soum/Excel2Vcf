@@ -1,7 +1,6 @@
 package PierreCarceller;
 
 import javafx.application.Application;
-import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -14,6 +13,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 
 import java.io.IOException;
 import java.util.Observer;
@@ -21,6 +23,8 @@ import java.util.Observer;
 
 public class View extends Application implements Observer {
     private Label errorMessage =  new Label();
+    private final Image gif = new Image(getClass().getResourceAsStream("/loadingGif.gif"));
+    private final ImageView loadingGif = new ImageView(gif);
 
     public static void main(String[] args) {
         Application.launch(View.class, args);
@@ -39,7 +43,7 @@ public class View extends Application implements Observer {
             Label markerFile = new Label("Marker File:");
             Label matrixFile = new Label("Matrix File:");
             Label finalPath = new Label("Final Path");
-            errorMessage.setLayoutX(600);
+            errorMessage.setLayoutX(25);
             errorMessage.setLayoutY(25);
             errorMessage.setVisible(false);
         //</Label>
@@ -108,22 +112,37 @@ public class View extends Application implements Observer {
             grid.setLayoutY(125);
         //</Gride>
 
-        root.getChildren().addAll(title,convert,grid,help,errorMessage);
+        //<ImageView>
+        loadingGif.setVisible(false);
+        loadingGif.setLayoutX((scene.getWidth()-loadingGif.getImage().getWidth())/2);
+        loadingGif.setLayoutY((scene.getHeight()-loadingGif.getImage().getHeight())/2);
+        //</ImageView>
+
+        root.getChildren().addAll(title,convert,grid,help,loadingGif,errorMessage);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    public void launchConvertion(String path1,String path2,String path3){
-        Main main = new Main();
+    private void launchConvertion(String path1, String path2, String path3){
+        Main main = new Main(this);
         try {
             main.launchConvertion(path1,path2,path3,this);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     public void update(java.util.Observable o, Object arg) {
         errorMessage.setVisible(true);
         errorMessage.setText((String) arg);
+    }
+
+    public void update(String bool){
+        if(bool.equals("true")){
+            loadingGif.setVisible(true);
+
+        }else if (bool.equals("false")){
+            loadingGif.setVisible(false);
+        }
+
     }
 }

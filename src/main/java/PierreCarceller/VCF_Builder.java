@@ -4,18 +4,18 @@ import htsjdk.variant.variantcontext.*;
 
 import java.util.*;
 
-public class VCF_Builder {
+class VCF_Builder {
 
-   public Allele refAllele;
-   public String refValue;
+   private Allele refAllele;
+   private String refValue;
 
-   public VCF_Builder(){
+   VCF_Builder(){
 
    }
 
-   public ArrayList makeAlleles (ArrayList<Comparable> currentRow, ArrayList<String> samplesNames){
+   ArrayList makeAlleles(ArrayList<Comparable> currentRow, ArrayList<String> samplesNames){
        ArrayList<ArrayList> allAlleles = new ArrayList<ArrayList>();
-       for(int i=1;i<samplesNames.size();i++) {
+       for(int i=0;i<samplesNames.size();i++) {
            String temp = currentRow.get(i).toString();
            ArrayList<Allele > alleles = new ArrayList<Allele>();
            Allele newAllele;
@@ -50,28 +50,35 @@ public class VCF_Builder {
        return allAlleles;
    }
 
-   public ArrayList makeGenotypes (ArrayList<ArrayList> allAlleles, ArrayList<String> samplesNames){
+   ArrayList makeGenotypes(ArrayList<ArrayList> allAlleles, ArrayList<String> samplesNames){
        ArrayList<Genotype> genotypes = new ArrayList<Genotype>();
-       for (int i=1; i<samplesNames.size();i++){
-           Genotype genotype = GenotypeBuilder.create(samplesNames.get(i),allAlleles.get(i-1));
+       for (int i=0; i<samplesNames.size();i++){
+           //ArrayList<Allele> temp = allAlleles.get(i);
+           Collections.sort(allAlleles.get(i));
+           Genotype genotype = GenotypeBuilder.create(samplesNames.get(i),allAlleles.get(i));
            genotypes.add(genotype);
        }
        return genotypes;
    }
 
-   public VariantContext makeVarianContexte(ArrayList<Genotype> genotypes, MarkerPosition markerPosition, ArrayList<Allele> alleleArrayList){
-       VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
-       variantContextBuilder.genotypes(genotypes);
-       variantContextBuilder.start(markerPosition.getMarkerPosition()); //position
-       variantContextBuilder.stop(markerPosition.getMarkerPosition());
-       variantContextBuilder.chr(markerPosition.getMarkerChromosome());//chromsome
-       variantContextBuilder.alleles(alleleArrayList);
-       variantContextBuilder.id(markerPosition.getMarkerName());
-       VariantContext variantContext = variantContextBuilder.make();
-       return variantContext;
+   VariantContext makeVarianContexte(ArrayList<Genotype> genotypes, MarkerPosition markerPosition, ArrayList<Allele> alleleArrayList){
+       if (alleleArrayList.size() > 0) {
+           VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
+           variantContextBuilder.genotypes(genotypes);
+           variantContextBuilder.start(markerPosition.getMarkerPosition()); //position
+           variantContextBuilder.stop(markerPosition.getMarkerPosition());
+           variantContextBuilder.chr(markerPosition.getMarkerChromosome());//chromsome
+           variantContextBuilder.alleles(alleleArrayList);
+           variantContextBuilder.id(markerPosition.getMarkerName());
+           VariantContext variantContext = variantContextBuilder.make();
+           return variantContext;
+       }else{
+           return null;
+       }
+
    }
 
-   public ArrayList<Allele> getAllele(ArrayList<ArrayList> arrayListArrayList){
+   ArrayList<Allele> getAllele(ArrayList<ArrayList> arrayListArrayList){
        ArrayList<Allele> result = new ArrayList<Allele>();
        ArrayList<String> alleleValue = new ArrayList<String>();
        for (ArrayList<Allele> array: arrayListArrayList){
