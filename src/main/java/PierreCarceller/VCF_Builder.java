@@ -62,15 +62,20 @@ class VCF_Builder {
    }
 
    VariantContext makeVarianContexte(ArrayList<Genotype> genotypes, MarkerPosition markerPosition, ArrayList<Allele> alleleArrayList){
-       VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
-       variantContextBuilder.genotypes(genotypes);
-       variantContextBuilder.start(markerPosition.getMarkerPosition()); //position
-       variantContextBuilder.stop(markerPosition.getMarkerPosition());
-       variantContextBuilder.chr(markerPosition.getMarkerChromosome());//chromsome
-       variantContextBuilder.alleles(alleleArrayList);
-       variantContextBuilder.id(markerPosition.getMarkerName());
-       VariantContext variantContext = variantContextBuilder.make();
-       return variantContext;
+       if (alleleArrayList.size() > 0) {
+           VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
+           variantContextBuilder.genotypes(genotypes);
+           variantContextBuilder.start(markerPosition.getMarkerPosition()); //position
+           variantContextBuilder.stop(markerPosition.getMarkerPosition());
+           variantContextBuilder.chr(markerPosition.getMarkerChromosome());//chromsome
+           variantContextBuilder.alleles(alleleArrayList);
+           variantContextBuilder.id(markerPosition.getMarkerName());
+           VariantContext variantContext = variantContextBuilder.make();
+           return variantContext;
+       }else{
+           return null;
+       }
+
    }
 
    ArrayList<Allele> getAllele(ArrayList<ArrayList> arrayListArrayList){

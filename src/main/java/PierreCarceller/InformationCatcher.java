@@ -2,6 +2,7 @@ package PierreCarceller;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,10 +30,15 @@ class InformationCatcher extends Observable {
             this.obs.update(this,"File " + filePath + " not found");
         }
         try {
-            this.workbook=new HSSFWorkbook(this.excelFile);
+            System.out.println(this.filePath.substring(this.filePath.length()-4));
+            if(this.filePath.substring(this.filePath.length()-4).equals(".xls")){
+                this.workbook=new HSSFWorkbook(this.excelFile);
+            }else{
+                this.workbook=new XSSFWorkbook(this.excelFile);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            this.obs.update(this,"Unable to create the workbook, check the file format (Only xsl files are accepted)");
+            this.obs.update(this,"Unable to create the workbook, check the file format (Only xsl/xlsx files are accepted)");
         }
 
     }
@@ -41,13 +47,13 @@ class InformationCatcher extends Observable {
         int count=0;
         Row firstRow = currentSheet.getRow(0);
         Iterator<Cell> cellIterator = firstRow.cellIterator();
-        Cell currentCell = cellIterator.next();
+        Cell currentCell ;//= cellIterator.next();
         while (cellIterator.hasNext()){
+            currentCell=cellIterator.next();
             if (currentCell.getStringCellValue().equals(columnName)){
                 return count;
             }else{
                 count++;
-                currentCell=cellIterator.next();
             }
         }
         this.obs.update(this,"The column " + columnName + " is not found");
@@ -78,9 +84,9 @@ class InformationCatcher extends Observable {
                 }
             }
             if (markerPositionAttribute[1]!=null && markerPositionAttribute[2]!=null){
-                result.add(new MarkerPosition((String) markerPositionAttribute[0],(String) markerPositionAttribute[1],(Integer) markerPositionAttribute[2]));
+                result.add(new MarkerPosition(markerPositionAttribute[0].toString(),markerPositionAttribute[1].toString(),(Integer) markerPositionAttribute[2]));
             }else{
-                result.add(new MarkerPosition((String) markerPositionAttribute[0],"Unknown", new Integer(0)));
+                result.add(new MarkerPosition(markerPositionAttribute[0].toString(),"Unknown", 0));
             }
             currentRow=rowIterator.next();
         }
@@ -111,7 +117,12 @@ class InformationCatcher extends Observable {
             Row currentRow = rowIterator.next();
             while (rowIterator.hasNext()){
                 currentRow = rowIterator.next();
-                hashMap.put(currentRow.getCell(0).getStringCellValue(),currentRow.getRowNum()+1);
+                if (currentRow.getCell(0).getCellTypeEnum() == CellType.STRING) {
+                    hashMap.put(currentRow.getCell(0).getStringCellValue(),currentRow.getRowNum()+1);
+                } else if(currentRow.getCell(0).getCellTypeEnum() == CellType.NUMERIC) {
+                    Double temp = currentRow.getCell(0).getNumericCellValue();
+                    hashMap.put("" +temp.intValue(),currentRow.getRowNum()+1);
+                }
             }
         }
         return hashMap;
@@ -121,12 +132,16 @@ class InformationCatcher extends Observable {
         ArrayList<Comparable> result = new ArrayList<Comparable>();
         Integer requestedRowNumber = (Integer) hashMap.get(key);
         Sheet currentSheet = this.workbook.getSheet(sheetName);
-        if (currentSheet==null){
-            this.obs.update(this, "Sheet "+sheetName+" not found");
+        if(requestedRowNumber!=null){
+            if (currentSheet==null){
+                this.obs.update(this, "Sheet "+sheetName+" not found");
+            }else{
+                System.out.println(requestedRowNumber);
+                Row requestedRow = currentSheet.getRow(requestedRowNumber-1);
+                return this.fillComparableArray(requestedRow);
+            }
         }else{
-            System.out.println(requestedRowNumber);
-            Row requestedRow = currentSheet.getRow(requestedRowNumber-1);
-            return this.fillComparableArray(requestedRow);
+            this.obs.update(this, "Some marker will are not found");
         }
         return null;
     }

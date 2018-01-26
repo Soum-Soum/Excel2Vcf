@@ -16,6 +16,12 @@ import java.util.*;
 
 // /home/u017-h433/Bureau/T_cacao_diversity.xls
 
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_positions_sorted.xls
+
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_v2_top_by_marker.xlsx
+
+// /home/u017-h433/Bureau/Donnée Chantale/Donnée Guihleme/haploryza_v2_top_by_marker.xls
+
 
 public class Main extends Observable{
 
@@ -55,12 +61,17 @@ public class Main extends Observable{
         for (MarkerPosition markerPosition :treeOfMarkersPositions){
             markerPosition.printMarkerPosition();
             ArrayList<Comparable> currentRow = informationCatcherMatrixFile.getRowWithHmap(stringIntegerHashMap,markerPosition.getMarkerName(),"data_matrix");
-            ArrayList<ArrayList> alleleArrayList = vcfBuilder.makeAlleles(currentRow,sampelsNames);
-            ArrayList<Genotype> genotypeArrayList = vcfBuilder.makeGenotypes(alleleArrayList, sampelsNames);
-            ArrayList<Allele> alleles = vcfBuilder.getAllele(alleleArrayList);
-            VariantContext variantContext = vcfBuilder.makeVarianContexte(genotypeArrayList,markerPosition, alleles );
-            writer.add(variantContext);
+            if(currentRow!=null){
+                ArrayList<ArrayList> alleleArrayList = vcfBuilder.makeAlleles(currentRow,sampelsNames);
+                ArrayList<Genotype> genotypeArrayList = vcfBuilder.makeGenotypes(alleleArrayList, sampelsNames);
+                ArrayList<Allele> alleles = vcfBuilder.getAllele(alleleArrayList);
+                VariantContext variantContext = vcfBuilder.makeVarianContexte(genotypeArrayList,markerPosition, alleles );
+                if(variantContext != null){
+                    writer.add(variantContext);
+                }
+            }
         }
+        writer.close();
         System.out.println("Done");
         this.obs.update(this, "false");
     }
