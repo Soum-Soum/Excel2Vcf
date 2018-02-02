@@ -69,8 +69,8 @@ class InformationCatcher extends Observable {
         int columnsNumbers[] = {this.getColumnIdByName(currentSheet,SNP_MARKER_NAME),this.getColumnIdByName(currentSheet,CHROMOSOME),this.getColumnIdByName(currentSheet,SNP_POSITION)};
         Iterator<Row> rowIterator = currentSheet.rowIterator();
         Row currentRow = rowIterator.next();
-        currentRow = rowIterator.next();
         while (rowIterator.hasNext()){
+            currentRow=rowIterator.next();
             Comparable markerPositionAttribute[]= new Comparable[3];
             for (int i=0;i<columnsNumbers.length;i++){
                 if (currentRow.getCell(columnsNumbers[i]).getCellTypeEnum() == CellType.STRING) {
@@ -86,9 +86,8 @@ class InformationCatcher extends Observable {
             if (markerPositionAttribute[1]!=null && markerPositionAttribute[2]!=null){
                 result.add(new MarkerPosition(markerPositionAttribute[0].toString(),markerPositionAttribute[1].toString(),(Integer) markerPositionAttribute[2]));
             }else{
-                result.add(new MarkerPosition(markerPositionAttribute[0].toString(),"Unknown", 0));
+                result.add(new MarkerPosition(markerPositionAttribute[0].toString(),"Unknown", null));
             }
-            currentRow=rowIterator.next();
         }
         result.last().printMarkerPosition();
         return result;
